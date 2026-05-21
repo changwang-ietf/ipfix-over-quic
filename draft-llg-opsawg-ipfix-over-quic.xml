@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rfc category="std" docName="draft-llg-opsawg-ipfix-over-quic-02" submissionType="IETF"
+<rfc category="std" docName="draft-llg-opsawg-ipfix-over-quic-03" submissionType="IETF"
 ipr="trust200902" consensus="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- category values: std, bcp, info, exp, and historic
@@ -57,31 +57,37 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
         <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
+	
+	<author fullname="Benoit Claise" initials="B " surname="Claise" role="editor">
+      <organization>Everything OPS</organization>
+      <address>
+        <email>benoit@everything-ops.net</email>
+      </address>
+    </author>
 
     <date year="2026" />
 
     <!-- Meta-data Declarations -->
 
-    <area>General</area>
+    <area>ops</area>
 
     <workgroup>OPSAWG</workgroup>
 
-    <keyword>OPSAWG</keyword>
     <keyword>IPFIX</keyword>
     <keyword>QUIC</keyword>
 
 <abstract>
 <t>
-   The IP Flow Information Export (IPFIX) Protocol provides a means for
+   The IP Flow Information Export (IPFIX) protocol provides a means for
    transmitting Traffic Flow information over the network. IPFIX Data
    and Template Records can be carried over a number of transport
    protocols from an IPFIX Exporting Process to an IPFIX Collecting
    Process. The supported transport protocols are SCTP, UDP and TCP.
-   QUIC could provide useful, reliable and secure semantics for IPFIX
-   Protocol in particular as a single connection could carry multiple
-   traffic flows over streams, enabling much better efficiency and
-   performance for Exporter and Collector. This document describes how
-   to use IPFIX Protocol over the QUIC transport protocol, named
+   QUIC could provide inherently secure, stream-multiplexed, and reliable
+   connections for IPFIX protocol. Especially, a single QUIC connection
+   can carry multiple independent streams, which can improve management
+   scalability between Exporters and Collectors. This document describes how
+   to use IPFIX protocol over the QUIC transport protocol, named
    IPFIXoQUIC.
 </t>
 
@@ -93,26 +99,30 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <section anchor="Introduction" title="Introduction">
 <t>
-   In order to transmit Traffic Flow information from an Exporting
+   In order to transmit traffic flow information from an Exporting
    Process to a Collecting Process, a common representation of flow
    data and a standard means of communicating them are required.
-   <xref target="RFC7011"/> specifies a protocol called IP Flow Information Export
-   (IPFIX) Protocol, and describes how the IPFIX Data and Template
-   Records of IPFIX Protocol are carried over a few of transport
-   protocols from an Exporter to a Collector.
+   <xref target="RFC7011"/> specifies a protocol called IP Flow
+   Information Export (IPFIX) protocol that specifies how IPFIX
+   Data Records and corresponding (Options) Template Records are
+   carried via a few of transport protocols from an Exporter to
+   a Collector.
 </t>
 <t>
    The IPFIX Protocol Specification has been designed to be transport
-   protocol independent, and allows a mapping to define how it could be
-   implemented over any specific transport protocol. In other words,
-   the Exporter can export to multiple Collectors using independent
-   transport protocols. At present, some transport protocols are
-   defined to carry IPFIX Protocol: SCTP transport <xref target="RFC9260"/>, UDP
-   transport <xref target="RFC9293"/>, TCP transport <xref target="RFC768"/>.
+   protocol independent (see Section 10 of <xref target="RFC7011"/>),
+   and allows a mapping to define how it could be
+   implemented over any specific transport protocol. 
+   The <xref target="RFC7011"/> specifies "SCTP <xref target="RFC4960"/>
+   using the PR-SCTP extension as specified in <xref target="RFC3758"/>
+   MUST be implemented by all compliant implementations. UDP <xref target="RFC9293"/>
+   MAY also be implemented by compliant implementations. TCP <xref target="RFC768"/>
+   MAY also be implemented by compliant implementations." However,
+   in practice, the UDP transport is used.
 </t>
 <t>
    As the network continues to expand, the data traffic it carries is
-   increasing, placing a significant load challenge on the IPFIX
+   increasing, amplifying a significant security challenge for the IPFIX
    transport protocol. To prevent potential security threats (such as
    DoS attacks), it is highly desirable that it must ensure the
    confidentiality and integrity of IPFIX data transferred from an
@@ -123,11 +133,10 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 </t>
 <t>
    QUIC <xref target="RFC9000"/> conforms to the above requirements, therefore is also
-   an appropriate transport protocol for IPFIX Protocol. QUIC is UDP-
+   an appropriate transport protocol for IPFIX protocol. QUIC is UDP-
    based multiplexed and secure transport protocol that provides
    connection-oriented and stateful interaction between a client and
-   server. It can provide low latency and encrypted transport with
-   resilient connections.
+   server.
 </t>
 <t>
    QUIC uses multiple simultaneous streams to carry data in one
@@ -144,8 +153,8 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 <t>
   <list style="symbols">
   <t>
-    QUIC provides reliability and congestion control similar to SCTP
-    and TCP. It is more universally used and supported across the global
+    QUIC provides reliability and congestion control for in-order delivery of data,
+    similar to SCTP and TCP. It is more universally used and supported across the global
     Internet environment because QUIC is a UDP-based protocol.
   </t>
   <t>
@@ -188,9 +197,9 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 </t>
 <t>
    Therefore, QUIC is a proper secure and reliable transport protocol
-   for the message transmission mechanism of IPFIX Protocol. This
+   for the message transmission mechanism of IPFIX protocol. This
    document specifies how to use QUIC as the transport protocol for
-   IPFIX Protocol.
+   IPFIX protocol.
 </t>
 </section>
 
@@ -199,17 +208,39 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
    "OPTIONAL" in this document are to be interpreted as described in
-   BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and only when, they appear in all
-   capitals, as shown here.
+   BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/> when, and
+   only when, they appear in all capitals, as shown here.
+</t>
+<t>
+   This document makes use of the terms defined in <xref target="RFC7011"/>.
+   The following terms are used as defined in <xref target="RFC7011"/>:
+</t>
+<t>
+  <list style="symbols">
+  <t>Flow Record</t>
+  <t>Exporting Process</t>
+  <t>Exporter</t>
+  <t>Collecting Process</t>
+  <t>Collector</t>
+  <t>Template</t>
+  <t>IPFIX Message</t>
+  <t>Template Record</t>
+  <t>Data Record</t>
+  <t>Options Template Record</t>
+  <t>Set</t>
+  <t>Template Set</t>
+  <t>Options Template Set</t>
+  <t>Data Set</t>
+  </list>
 </t>
 <t>
    In this document, the terms "client" and "server" are used to refer
    to the two ends of the QUIC connection. The client actively
-   initiates the QUIC connection. The terms "exporter" and "collector"
-   are used to refer to the two ends of the IPFIX Protocol session. An
-   exporter establishes and keeps open a connection to one or more
-   collectors, generally, an "exporter" is a "client" meanwhile a
-   "collector" is a "server".
+   initiates the QUIC connection. The terms "Exporter" and "Collector"
+   are used to refer to the two ends of the IPFIX protocol session. An
+   Exporter establishes and keeps open a connection to one or more
+   Collectors, generally, an "Exporter" is a "client" meanwhile a
+   "Collector" is a "server".
 </t>
 <t>
   <list style="symbols">
@@ -230,7 +261,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   <section anchor="Connection-establishment" title="Connection Establishment">
   <t>
     QUIC connection establishment is described in <xref target="RFC9000"/>. During
-    establishing connection, IPFIXoQUIC support is indicated by
+    establishing connection, IPFIX over QUIC (IPFIXoQUIC) support is indicated by
     selecting the Application-Layer Protocol Negotiation (ALPN)
     <xref target="RFC7301"/> token as listed in the IANA Section 7 in the TLS
     handshake.
@@ -240,7 +271,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     must also act as the server.
   </t>
   <t>
-    The Exporter should be the initiator of the QUIC connection to the
+    The Exporter MUST be the initiator of the QUIC connection to the
     Collector meanwhile the Collector acts as a connection acceptor. The
     Exporter MAY support more than one active connection to different
     Collector. The Exporter MAY also support more than one active
@@ -248,7 +279,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     across Observation Domains.
   </t>
   <t>
-    The Exporter MAY record an alarm if the underlying QUIC connection
+    The Exporter MUST record an alarm if the underlying QUIC connection
     establishment time out; this timeout should be configurable on the
     Exporter.
   </t>
@@ -259,13 +290,25 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     Exporting Process MAY open a backup QUIC connection to a Collecting
     Process in advance, if it supports Collecting Process failover.
   </t>
+  <t>
+    IPFIX Exporting Processes MUST NOT be configured to establish QUIC
+    connections to an anycast IP address.  The stateful nature of QUIC is
+    fundamentally incompatible with the stateless, per-packet routing
+    decisions of anycast, which will prevent connection establishment.
+  </t>
+  <t>
+    To deploy a Collecting Process using an anycast address, the UDP
+    transport protocol MUST be used.  If QUIC's features are required,
+    implementers MUST use a unicast architecture with stateful load
+    balancers instead of anycast.
+  </t>
   <section anchor="Early-Data" title="Early Data">
     <t>
       The QUIC protocol uses TLS 1.3 messages to secure the transport.
       And TLS 1.3 supports Early Data (also known as 0-RTT data) <xref target="RFC9001"/>.
       Early Data is a mechanism defined in TLS 1.3
-      <xref target="I-D.ietf-tls-rfc8446bis"/> that enables a client to transmit flow
-      records during the initial handshake when resuming a previous
+      <xref target="I-D.ietf-tls-rfc8446bis"/> that enables a client to transmit
+      data during the initial handshake when resuming a previous
       session. Note that TLS 1.3 can be used without Early Data as per
       Appendix F.5 of <xref target="I-D.ietf-tls-rfc8446bis"/>. This functionality is
       only available when the client and server share a Pre-Shared Key
@@ -282,7 +325,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     <t>
       <list style="symbols">
       <t>
-        Flow records frequently contain sensitive operational data that
+        Flow Records frequently contain sensitive operational data that
         could be exploited if replayed.
       </t>
       <t>
@@ -324,12 +367,12 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     <section anchor="IPFIXoQUIC-termination-considerations" title="IPFIXoQUIC Considerations for Connection Termination">
       <t>
         When an IPFIX session is implemented based on a QUIC connection, the
-        idle timeout should be disabled or the QUIC max_idle_timeout should
+        idle timeout SHOULD be disabled or the QUIC max_idle_timeout SHOULD
         be set appropriately in order to keep the QUIC connection persistent
         even if the IPFIX session is idle.
       </t>
       <t>
-        When an Exporting Process is shut down, it SHOULD shut down the QUIC
+        When an Exporting Process is shut down, it MUST shut down the corresponding QUIC
         connection.
       </t>
       <t>
@@ -340,16 +383,17 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
       </t>
       <t>
         When detecting abnormal termination of a QUIC connection established
-        with the exporting process, the collecting process MUST retain its
+        with the Exporting Process, the Collecting Process MUST retain its
         ability to accept new incoming QUIC connections.
       </t>
       <t>
         When an Exporting Process is detecting the abnormal interruption of
         the QUIC connection to the Collecting Process, it SHOULD try to re-
         establish the connection. Connection timeouts and retry schedules
-        SHOULD be configurable. The default configuration is that an
-        Exporting Process MUST NOT attempt to establish a connection more
-        frequently than once per minute.
+        SHOULD be configurable. To ensure network stability and mitigate
+        denial-of-service attacks, an Exporting Process MUST NOT, by default,
+        attempt to establish a new QUIC connection to the same Collecting Process more
+        frequently than once per minute (60 seconds).
       </t>
     </section>
 
@@ -376,70 +420,71 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   </t>
   <section anchor="Unidirectional-stream" title="Unidirectional Stream from Exporter to Collector">
     <t>
-      According to the architecture for the export of measured IP Flow
+      According to the architecture for the export of measured IP flow
       information defined in <xref target="RFC5470"/>, IPFIX Data Records and Templates
       are carried via a number of transport protocols from IPFIX Exporting
       Process to IPFIX Collecting Process. Therefore, the IPFIX connection
       is unidirectional from Exporter to Collector.
     </t>
     <t>
-      Based on the above description, The IPFIX messages are initiated by
+      Based on the above description, The IPFIX Messages are initiated by
       the Exporter and no reply is needed from the Collector. So the IPFIX
-      messages MAY be mapped into one unidirectional stream whose stream
+      Messages MUST be mapped into one unidirectional stream whose stream
       type is 0x3 according to section 2.1 of <xref target="RFC9000"/>.
     </t>
   </section>
 
   <section anchor="Multiple-stream-usage" title="Multiple Stream Usage">
     <t>
-      For achieving much better Transmission efficiency and performance
+      For achieving much better management scalability and potential efficiency improvements
       for Exporter and Collector, An Exporting Process MAY create more
       than one QUIC stream per connection. Each of these streams may be
       used for the transmission of IPFIX Messages containing Data Sets,
       Template Sets, and/or Options Template Sets.
     </t>
     <t>
-      IPFIX messages can be differentiated by various characteristics,
-      such as five-tuple information (Source IP address, source port,
+      IPFIX Messages can be differentiated by various characteristics,
+      such as five-tuple information (source IP address, source port,
       destination IP address, destination port, and transport layer
-      protocol), only transport layer protocol (UDP and TCP), ranges
-      of source or destination IP addresses, and method per Template,
-      and carried over different QUIC streams accordingly.
+      protocol), transport layer protocol only (e.g., UDP or TCP), ranges
+      of source or destination IP addresses, and method per Template.
+      Accordingly, the Exporting Process can segregate IPFIX Messages
+      into different QUIC streams based on above characteristics.
     </t>
     <t>
-      For five-tuple information, each five-tuple's IPFIX messages are
+      For five-tuple information, each five-tuple's IPFIX Messages are
       transmitted through a QUIC stream. If there are many five-tuples, a
       large number of QUIC streams must be created, so this approach
-      should be used with caution.
+      MUST be used with caution.
     </t>
     <t>
-      For only transport layer protocol, IPFIX messages of each protocol
+      For only transport layer protocol, IPFIX Messages of each protocol
       are transmitted through a QUIC stream.
     </t>
     <t>
-      For ranges of source or destination addresses, IPFIX messages with
+      For ranges of source or destination addresses, IPFIX Messages with
       specified source or destination IP address segment are transmitted
-      through a QUIC stream. The size of the IP address range can be
+      through a QUIC stream. The size of the IP address range SHOULD be
       determined by the configuration.
     </t>
     <t>
-      For the method for exporting a Template Record and its associated
+      For the method of exporting a Template Record and its associated
       Data Sets in a single SCTP stream (as specified in <xref target="RFC6526"/>),
-      both each Template and its corresponding Data Records can also be
-      exported within a single QUIC stream.
+      this method MUST also be supported in IPFIXoQUIC. The ordering within
+      each QUIC stream implies that the Template is sent only once,
+      at the beginning. Any Template Withdrawal MUST also be sent on the same QUIC stream
+      that carries the associated Template Record.
     </t>
     <t>
-      Moreover, if the specified feature's IPFIX message is binding to a
-      QUIC stream ID, meaning that the IPFIX message with fixed features
-      is only transmitted through a QUIC stream of fixed ID, the collector
-      will only receive the specified feature's IPFIX message from the
-      designated stream ID. This may simplify the implementation of the
-      collector.
+      Furthermore, IPFIX Messages sharing common characteristics (e.g., matching
+      a specific Template or flow characteristics) SHOULD be mapped to a
+      dedicated QUIC stream. This allows the Collecting Process to receive and
+      process messages by type directly from their assigned streams, simplifying its logic.
     </t>
     <t>
-      According to one of the features, the number of streams created
-      may exceed the limit of a QUIC connection, in which case a new QUIC
-      connection needs to be created.
+      If the number of distinct streams required exceeds the maximum stream
+      limit of a single QUIC connection, the Exporting Process MUST establish
+      a new connection.
     </t>
   </section>
 </section>
@@ -463,16 +508,18 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   enable IPFIXoQUIC as optional transmission protocol on the IPFIX session.
 </t>
 <t>
-  A configuration mechanism should be implemented to enable selection
-  between single-stream or multi-stream QUIC transmission for IPFIX messages.
-  For multi-stream QUIC transmission, the characteristics of IPFIX messages
-  exported in a single stream should be determined by configuration.
+  A configuration mechanism SHOULD be implemented to enable selection
+  between single-stream or multi-stream QUIC transmission for IPFIX Messages.
+  For multi-stream QUIC transmission, the characteristics of IPFIX Messages
+  exported in a single stream (e.g., by Template type) SHOULD be determined
+  by configuration.
 </t>
 <t>
-  Some connectivity problems (such as blocking UDP) could result in a
-  failure to establish a QUIC connection. When this happens, the
+  Some connectivity problems (such as blocking UDP) could result in repeated
+  persistent failures to establish a QUIC connection. When this happens, the
   Exporter SHOULD attempt to establish an IPFIX session via other
-  transport protocols.
+  transport protocols, such as IPFIX over UDP <xref target="RFC7011"/>, for
+  maintaining data export continuity.
 </t>
 </section>
 <section anchor="Congestion Avoidance" title="Congestion Avoidance">
@@ -495,7 +542,13 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     transmission buffer is full and wants to avoid blocking, it can
     choose to drop some Data Records. Dropped Data Records MUST be
     accounted for, so that lost record counts can later be reported as
-    described in Section 4.3 of <xref target="RFC7011"/>.
+    described in Section 4.3 of <xref target="RFC7011"/>. If the record
+    drop rate becomes unacceptably high, it is RECOMMENDED to switch to
+    sending unreliable QUIC datagrams (see <xref target="RFC9221"/>).
+    This avoids head-of-line congestion while retaining the security and
+    congestion control advantages of QUIC. Reverting to raw UDP SHOULD
+    only be considered when absolutely necessary, but this will completely
+    forfeit all QUIC functionality.
   </t>
 </section>
 <section anchor="Reliability" title="Reliability">
@@ -527,10 +580,14 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     failover.
   </t>
   <t>
-    QUIC identifies connections using connection IDs instead of relying
-    on the IP address and port at the network layer. This allows QUIC to
-    continue data transmission without reconstructing the connection
-    when the network path changes.
+    QUIC uses connection IDs instead of network-layer addresses and ports
+    to identify connections. This enables connection migration, allowing
+    data transmission to continue without re-establishment when the network
+    path changes. Consequently, the source IP address of IPFIX exported packets MAY
+    change during an active session. Collectors MUST NOT rely solely on this
+    unstable source IP for device identification. Instead, the QUIC connection ID
+    itself, or an explicitly configured identifier within the IPFIX Messages,
+    SHOULD be used to reliably correlate the Flow Records with the Exporter.
   </t>
 </section>
 </section>
@@ -595,13 +652,16 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     <references title="Normative References">
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.768.xml"/>
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+        <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.3758.xml"/>
+        <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.4960.xml"/>
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.6526.xml"/>
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.7011.xml"/>
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.9000.xml"/>
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.9001.xml"/>
+        <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.9221.xml"/>
         <!--<xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.9260.xml"/>-->
-        <reference anchor="RFC9260" target="https://www.rfc-editor.org/info/rfc9260" quoteTitle="true" derivedAnchor="RFC9260">
+        <!--<reference anchor="RFC9260" target="https://www.rfc-editor.org/info/rfc9260" quoteTitle="true" derivedAnchor="RFC9260">
           <front>
             <title>Stream Control Transmission Protocol</title>
             <author fullname="R. Stewart" initials="R." surname="Stewart"/>
@@ -611,7 +671,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
           </front>
           <seriesInfo name="RFC" value="9260"/>
           <seriesInfo name="DOI" value="10.17487/RFC9260"/>
-        </reference>
+        </reference>-->
         <xi:include href="http://xml.resource.org/public/rfc/bibxml/reference.RFC.9293.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc8446bis.xml"/>
     </references>
