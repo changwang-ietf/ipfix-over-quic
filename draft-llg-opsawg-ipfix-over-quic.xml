@@ -535,7 +535,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     However, buffering is inherently limited due to both resource
     constraints and timeliness requirements, so persistent and/or severe
     congestion may lead to a situation where the Exporting Process is
-    blocked.
+    blocked. Such as situation MUST generate an alert.
   </t>
   <t>
     When an Exporting Process has Data Records to send but the
