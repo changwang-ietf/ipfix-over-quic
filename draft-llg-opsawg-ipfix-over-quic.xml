@@ -229,6 +229,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   <t>Options Template Record</t>
   <t>Set</t>
   <t>Template Set</t>
+  <t>Transport Session</t>	  
   <t>Options Template Set</t>
   <t>Data Set</t>
   </list>
@@ -271,22 +272,23 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     must also act as the server.
   </t>
   <t>
-    The Exporter MUST be the initiator of the QUIC connection to the
-    Collector meanwhile the Collector acts as a connection acceptor. The
-    Exporter MAY support more than one active connection to different
-    Collector. The Exporter MAY also support more than one active
-    connection to the same Collector to avoid head-of-line blocking
-    across Observation Domains.
+    If the QUIC connection is not yet established, the Exporter MUST be the
+	initiator of the QUIC connection to the Collector meanwhile the Collector
+	acts as a connection acceptor. The Exporter MAY support more than one
+	active connection to different Collector. The Exporter MAY also support
+	more than one active connection to the same Collector to avoid head-of-line
+	blocking across Observation Domains.
   </t>
   <t>
-    The Exporter MUST record an alarm if the underlying QUIC connection
-    establishment time out; this timeout should be configurable on the
-    Exporter.
+    The Exporting Process MUST record an alarm if the underlying QUIC connection
+    establishment times out; this timeout SH0ULD be configurable on the
+    Exporter. In scuh as a case, the Exporter SHOULD automatically
+    retry connection establishment.
   </t>
   <t>
     If the Collecting Process does not acknowledge an attempt by the
-    Exporting Process to establish a connection, QUIC will automatically
-    retry connection establishment using exponential backoff. The
+    Exporting Process to establish a connection, the Exporter will automatically
+    retry connection establishment. The
     Exporting Process MAY open a backup QUIC connection to a Collecting
     Process in advance, if it supports Collecting Process failover.
   </t>
@@ -326,10 +328,10 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
       <list style="symbols">
       <t>
         Flow Records frequently contain sensitive operational data that
-        could be exploited if replayed.
+        could be exploited if modified or replayed.
       </t>
       <t>
-        Duplicate flow reporting could corrupt traffic analysis and
+        Duplicate Flow Records reporting could corrupt traffic analysis and
         monitoring systems.
       </t>
       <t>
@@ -366,7 +368,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 
     <section anchor="IPFIXoQUIC-termination-considerations" title="IPFIXoQUIC Considerations for Connection Termination">
       <t>
-        When an IPFIX session is implemented based on a QUIC connection, the
+        When an IPFIX Transport Session is implemented based on a QUIC connection, the
         idle timeout SHOULD be disabled or the QUIC max_idle_timeout SHOULD
         be set appropriately in order to keep the QUIC connection persistent
         even if the IPFIX session is idle.
@@ -379,7 +381,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
         When a Collecting Process no longer wants to receive IPFIX Messages,
         it SHOULD close its end of the connection. The Collecting Process
         SHOULD continue to read IPFIX Messages until the Exporting Process
-        has closed its end.
+        has closed its end. 
       </t>
       <t>
         When detecting abnormal termination of a QUIC connection established
