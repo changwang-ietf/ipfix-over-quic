@@ -432,26 +432,11 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <section anchor="Multiple-stream-usage" title="Multiple Stream Usage">
     <t>
-      For achieving much better management scalability and potential efficiency improvements
+      For achieving much better management scalability
       for Exporter and Collector, An Exporting Process MAY create more
       than one QUIC stream per connection. Each of these streams may be
       used for the transmission of IPFIX Messages containing Data Sets,
-      Template Sets, and/or Options Template Sets.
-    </t>
-    <t>
-      IPFIX Messages can be differentiated by various characteristics,
-      such as five-tuple information (source IP address, source port,
-      destination IP address, destination port, and transport layer
-      protocol), transport layer protocol only (e.g., UDP or TCP), ranges
-      of source or destination IP addresses, and method per Template.
-      Accordingly, the Exporting Process can segregate IPFIX Messages
-      into different QUIC streams based on above characteristics.
-    </t>
-    <t>
-      For five-tuple information, each five-tuple's IPFIX Messages are
-      transmitted through a QUIC stream. If there are many five-tuples, a
-      large number of QUIC streams must be created, so this approach
-      MUST be used with caution.
+      and the corresponding Template Sets and Options Template Sets.
     </t>
     <t>
       For only transport layer protocol, IPFIX Messages of each protocol
@@ -473,7 +458,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     </t>
     <t>
       Furthermore, IPFIX Messages sharing common characteristics (e.g., matching
-      a specific Template or flow characteristics) SHOULD be mapped to a
+      a specific Template or flow characteristics) MAY be mapped to a
       dedicated QUIC stream. This allows the Collecting Process to receive and
       process messages by type directly from their assigned streams, simplifying its logic.
     </t>
