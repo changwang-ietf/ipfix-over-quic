@@ -425,7 +425,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     <t>
       Based on the above description, The IPFIX Messages are initiated by
       the Exporter and no reply is needed from the Collector. So the IPFIX
-      Messages MUST be mapped into one unidirectional stream whose stream
+      Messages for IPFIXoverQUIC MUST be mapped into one unidirectional stream whose stream
       type is 0x3 according to section 2.1 of <xref target="RFC9000"/>.
     </t>
   </section>
