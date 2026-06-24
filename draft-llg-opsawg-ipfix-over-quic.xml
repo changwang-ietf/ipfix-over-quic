@@ -57,6 +57,14 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
         <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
+	<author fullname="Benoit Claise" initials="B."
+            surname="Graf" role="editor">
+      <organization>Everything OPS</organization>
+      <address>
+        <email>benoit@everything-ops.net</email>
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
 	
 	<author fullname="Benoit Claise" initials="B " surname="Claise" role="editor">
       <organization>Everything OPS</organization>
