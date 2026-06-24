@@ -57,19 +57,12 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
         <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
-	<author fullname="Benoit Claise" initials="B."
-            surname="Graf" role="editor">
+	  <author fullname="Benoit Claise" initials="B."
+            surname="Claise" role="editor">
       <organization>Everything OPS</organization>
       <address>
         <email>benoit@everything-ops.net</email>
         <!-- uri and facsimile elements may also be added -->
-      </address>
-    </author>
-	
-	<author fullname="Benoit Claise" initials="B " surname="Claise" role="editor">
-      <organization>Everything OPS</organization>
-      <address>
-        <email>benoit@everything-ops.net</email>
       </address>
     </author>
 
@@ -119,7 +112,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
    MUST be implemented by all compliant implementations. UDP <xref target="RFC9293"/>
    MAY also be implemented by compliant implementations. TCP <xref target="RFC768"/>
    MAY also be implemented by compliant implementations." However,
-   in practice, the UDP transport is used."
+   in practice, the UDP transport is used.
    The IPFIX protocol specifications cover the specifics and mappings per transport
    protocol (see Section 8, 9, 10 of <xref target="RFC7011"/>). For example,
    the Template management differs based on the transport protocol.
@@ -231,7 +224,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   <t>Options Template Record</t>
   <t>Set</t>
   <t>Template Set</t>
-  <t>Transport Session</t>	  
+  <t>Transport Session</t>
   <t>Options Template Set</t>
   <t>Data Set</t>
   </list>
@@ -275,24 +268,26 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   </t>
   <t>
     If the QUIC connection is not yet established, the Exporter MUST be the
-	initiator of the QUIC connection to the Collector meanwhile the Collector
-	acts as a connection acceptor. The Exporter MAY support more than one
-	active connection to different Collector. The Exporter MAY also support
-	more than one active connection to the same Collector to avoid head-of-line
-	blocking across Observation Domains.
-  </t>
-  <t>
-    The Exporting Process MUST record an alarm if the underlying QUIC connection
-    establishment times out; this timeout SH0ULD be configurable on the
-    Exporter. In scuh as a case, the Exporter SHOULD automatically
-    retry connection establishment.
+    initiator of the QUIC connection to the Collector meanwhile the Collector
+    acts as the connection acceptor. The Exporter MAY support more than one
+    active connection to different Collectors. The Exporter MAY also support
+    more than one active connection to the same Collector.
   </t>
   <t>
     If the Collecting Process does not acknowledge an attempt by the
     Exporting Process to establish a connection, the Exporter will automatically
-    retry connection establishment. The
-    Exporting Process MAY open a backup QUIC connection to a Collecting
-    Process in advance, if it supports Collecting Process failover.
+    retry connection establishment. The Exporting Process MAY record an alarm
+    if the underlying QUIC connection establishment time out; this timeout SHOULD
+    be configurable on the Exporter.
+  </t>
+  <t>
+    When an Exporting Process is detecting the abnormal interruption of
+    the QUIC connection to the Collecting Process, it SHOULD also try to
+    re-establish the connection. Retry schedules SHOULD be configurable.
+    To ensure network stability and mitigate
+    denial-of-service attacks, an Exporting Process MUST NOT, by default,
+    attempt to establish a new QUIC connection to the same Collecting Process more
+    frequently than once per minute (60 seconds).
   </t>
   <t>
     IPFIX Exporting Processes MUST NOT be configured to establish QUIC
@@ -337,8 +332,8 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
         monitoring systems.
       </t>
       <t>
-        The stateful nature of flow collection amplifies vulnerability to
-        replay-based manipulation.
+        The stateful nature of flow collection (which relies on past data to interpret new traffic)
+        amplifies its vulnerability to replay-based manipulation.
       </t>
       <t>
         The marginal latency improvements offered by 0-RTT provide
@@ -383,21 +378,12 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
         When a Collecting Process no longer wants to receive IPFIX Messages,
         it SHOULD close its end of the connection. The Collecting Process
         SHOULD continue to read IPFIX Messages until the Exporting Process
-        has closed its end. 
+        has closed its end.
       </t>
       <t>
         When detecting abnormal termination of a QUIC connection established
         with the Exporting Process, the Collecting Process MUST retain its
         ability to accept new incoming QUIC connections.
-      </t>
-      <t>
-        When an Exporting Process is detecting the abnormal interruption of
-        the QUIC connection to the Collecting Process, it SHOULD try to re-
-        establish the connection. Connection timeouts and retry schedules
-        SHOULD be configurable. To ensure network stability and mitigate
-        denial-of-service attacks, an Exporting Process MUST NOT, by default,
-        attempt to establish a new QUIC connection to the same Collecting Process more
-        frequently than once per minute (60 seconds).
       </t>
     </section>
 
@@ -433,7 +419,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     <t>
       Based on the above description, The IPFIX Messages are initiated by
       the Exporter and no reply is needed from the Collector. So the IPFIX
-      Messages for IPFIXoverQUIC MUST be mapped into one unidirectional stream whose stream
+      Messages for IPFIXoQUIC MUST be mapped into one unidirectional stream whose stream
       type is 0x3 according to section 2.1 of <xref target="RFC9000"/>.
     </t>
   </section>
@@ -444,7 +430,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
       for Exporter and Collector, An Exporting Process MAY create more
       than one QUIC stream per connection. Each of these streams may be
       used for the transmission of IPFIX Messages containing Data Sets,
-      and the corresponding Template Sets and Options Template Sets.
+      and the corresponding Template Sets, and Options Template Sets.
     </t>
     <t>
       For only transport layer protocol, IPFIX Messages of each protocol
@@ -506,8 +492,8 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 <t>
   Some connectivity problems (such as blocking UDP) could result in repeated
   persistent failures to establish a QUIC connection. When this happens, the
-  Exporter SHOULD attempt to establish an IPFIX session via other
-  transport protocols, such as IPFIX over UDP <xref target="RFC7011"/>, for
+  Exporter SHOULD be configurable to attempt to establish an IPFIX session via other
+  transport protocols besides QUIC, such as IPFIX over UDP <xref target="RFC7011"/>, for
   maintaining data export continuity.
 </t>
 </section>
@@ -556,27 +542,32 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 </section>
 <section anchor="Failover" title="Failover">
   <t>
-    If the Collecting Process does not acknowledge an attempt by the
-    Exporting Process to establish a connection, QUIC will automatically
-    retry connection establishment using exponential back off. The
-    Exporter MAY log an alarm if the underlying QUIC connection
-    establishment times out; this timeout should be configurable on the
-    Exporter.
-  </t>
-  <t>
     The Exporting Process MAY open a backup QUIC connection to a
     Collecting Process in advance, if it supports Collecting Process
     failover.
   </t>
+</section>
+<section anchor="Device Identification" title="Device Identification">
   <t>
     QUIC uses connection IDs instead of network-layer addresses and ports
     to identify connections. This enables connection migration, allowing
     data transmission to continue without re-establishment when the network
-    path changes. Consequently, the source IP address of IPFIX exported packets MAY
+    path changes.
+  </t>
+  <t>
+    Consequently, the source IP address of IPFIX exported packets MAY
     change during an active session. Collectors MUST NOT rely solely on this
     unstable source IP for device identification. Instead, the QUIC connection ID
     itself, or an explicitly configured identifier within the IPFIX Messages,
-    SHOULD be used to reliably correlate the Flow Records with the Exporter.
+    MUST be used to reliably correlate the Flow Records with the Exporter.
+  </t>
+  <t>
+    To ensure data correlation in multi-connection mode, when an Exporter uses
+    multiple QUIC connections (to the same or different Collectors), it MUST
+    announce a consistent device ID across all connections.
+    This device ID represents the logical entity of the exporting device itself
+    and does not change based on specific observation domains, line cards, source
+    IP addresses, or QUIC connection IDs.
   </t>
 </section>
 </section>
@@ -622,7 +613,15 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
   third-party authentication (e.g., backend Authentication) due to the
   fact that TLS does not specify this way of authentication. If third-
   party authentication is needed, TLS client certificates are
-  recommended to be used here.
+  RECOMMENDED to be used here.
+</t>
+<t>
+  Supporting IPFIXoQUIC fallback to UDP introduces the risk of protocol degradation
+  attacks: attackers can force a connection degradation by interfering with QUIC,
+  causing subsequent traffic to be transmitted in unencrypted UDP, making it vulnerable
+  to eavesdropping and tampering. To mitigate this risk, it is RECOMMENDED to enable
+  DTLS to ensure data integrity after the fallback. All degradation events MUST be monitored,
+  and frequent fallbacks SHOULD be considered a security alert.
 </t>
 </section>
 
