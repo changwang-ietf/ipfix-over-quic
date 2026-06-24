@@ -79,11 +79,11 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 <abstract>
 <t>
    The IP Flow Information Export (IPFIX) protocol provides a means for
-   transmitting Traffic Flow information over the network. IPFIX Data
+   transmitting Traffic Flow information over the network. IPFIX Flow Records
    and Template Records can be carried over a number of transport
-   protocols from an IPFIX Exporting Process to an IPFIX Collecting
-   Process. The supported transport protocols are SCTP, UDP and TCP.
-   QUIC could provide inherently secure, stream-multiplexed, and reliable
+   protocols from an IPFIX Exporter to an IPFIX Collector. The supported
+   transport protocols are SCTP, UDP and TCP.
+   QUIC provides inherently secure, stream-multiplexed, and reliable
    connections for IPFIX protocol. Especially, a single QUIC connection
    can carry multiple independent streams, which can improve management
    scalability between Exporters and Collectors. This document describes how
@@ -99,9 +99,6 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <section anchor="Introduction" title="Introduction">
 <t>
-   In order to transmit traffic flow information from an Exporting
-   Process to a Collecting Process, a common representation of flow
-   data and a standard means of communicating them are required.
    <xref target="RFC7011"/> specifies a protocol called IP Flow
    Information Export (IPFIX) protocol that specifies how IPFIX
    Data Records and corresponding (Options) Template Records are
@@ -109,24 +106,21 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
    a Collector.
 </t>
 <t>
-   The IPFIX Protocol Specification has been designed to be transport
-   protocol independent (see Section 10 of <xref target="RFC7011"/>),
-   and allows a mapping to define how it could be
-   implemented over any specific transport protocol. 
    The <xref target="RFC7011"/> specifies "SCTP <xref target="RFC4960"/>
    using the PR-SCTP extension as specified in <xref target="RFC3758"/>
    MUST be implemented by all compliant implementations. UDP <xref target="RFC9293"/>
    MAY also be implemented by compliant implementations. TCP <xref target="RFC768"/>
    MAY also be implemented by compliant implementations." However,
-   in practice, the UDP transport is used.
+   in practice, the UDP transport is used."
+   The IPFIX protocol specifications cover the specifics and mappings per transport
+   protocol (see Section 8, 9, 10 of <xref target="RFC7011"/>). For example,
+   the Template management differs based on the transport protocol.
 </t>
 <t>
-   As the network continues to expand, the data traffic it carries is
-   increasing, amplifying a significant security challenge for the IPFIX
-   transport protocol. To prevent potential security threats (such as
+   To prevent potential security threats (such as
    DoS attacks), it is highly desirable that it must ensure the
    confidentiality and integrity of IPFIX data transferred from an
-   Exporting Process to a Collecting Process. Authentication mechanism
+   Exporter to a Collector. Authentication mechanism
    is also desirable to prevent the collection of data from an
    unauthorized Exporting Process or the export of data to an
    unauthorized Collecting Process.
@@ -180,7 +174,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
     This gives QUIC strong adaptability to different MTU conditions.
   </t>
   <t>
-    QUIC's connection migration feature can make it easy to maintain
+    QUIC connection migration feature can make it easy to maintain
     sessions seamlessly even when IP addresses change 
     (e.g., during Wi-Fi to cellular handover),
     making it well-suited for IPFIX collection in mobile networks. 
