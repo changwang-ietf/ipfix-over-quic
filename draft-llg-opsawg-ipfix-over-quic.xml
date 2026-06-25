@@ -61,6 +61,10 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
             surname="Claise" role="editor">
       <organization>Everything OPS</organization>
       <address>
+	    <postal>
+          <!-- Reorder these if your country does things differently -->
+          <country>Belgium</country>
+        </postal>
         <email>benoit@everything-ops.net</email>
         <!-- uri and facsimile elements may also be added -->
       </address>
@@ -79,7 +83,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <abstract>
 <t>
-   The IP Flow Information Export (IPFIX) protocol provides a means for
+   The IP Flow Information eXport Protocol (IPFIX) provides a means for
    transmitting Traffic Flow information over the network. IPFIX Flow Records
    and Template Records can be carried over a number of transport
    protocols from an IPFIX Exporter to an IPFIX Collector. The supported
@@ -101,7 +105,7 @@ xmlns:xi="http://www.w3.org/2001/XInclude">
 <section anchor="Introduction" title="Introduction">
 <t>
    <xref target="RFC7011"/> specifies a protocol called IP Flow
-   Information Export (IPFIX) protocol that specifies how IPFIX
+   Information eXport Protocol (IPFIX) that specifies how IPFIX
    Data Records and corresponding (Options) Template Records are
    carried via a few of transport protocols from an Exporter to
    a Collector.
